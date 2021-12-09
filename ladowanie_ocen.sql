@@ -1,7 +1,7 @@
 USE hurtownia
 GO
 
-If (object_id('dbo.RatingTemp') is not null) DROP TABLE dbo.CourseRatingTemp;
+If (object_id('dbo.RatingTemp') is not null) DROP TABLE dbo.RatingTemp;
 CREATE TABLE dbo.RatingTemp(pesel varchar(11), lecturer_rating int, instructor_rating int, course_rating int)
 GO 
 BULK INSERT dbo.RatingTemp
