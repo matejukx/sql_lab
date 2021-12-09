@@ -33,7 +33,7 @@ CREATE table t_date(
         (
             Season='wiosna' OR
             Season='lato' OR
-            Season='jesień' OR
+            Season='jesien' OR
             Season='zima'  
         )
         
