@@ -17,14 +17,24 @@ GO
 
 CREATE VIEW etlTheoreticalNationalExamTake AS
 SELECT 
-    [StudentID]
-    [DateID]
-    [WordID]
-    [Score]
-    [TimeFromCourseEnd]
-    [ResultID]
+    s.ID AS [StudentID],
+    d.ID AS [DateID],
+    w.ID AS [WordID],
+    CAST(score AS int) AS [Score],
+    DATEDIFF(day, r.exam_date, st.End_date) AS [TimeFromCourseEnd],
+    tr.ID AS [ResultID]
 FROM
-
+    dbo.ResultTemp r JOIN [hurtownia].[dbo].t_student s
+    ON r.pesel = s.PESEL
+    JOIN [hurtownia].[dbo].t_date d
+    ON d.DateYear = DATEPART(year, r.exam_date) AND d.DateMonth = DATEPART(month, r.exam_date) AND d.DateDay = DATEPART(day, r.exam_date)
+    JOIN [hurtownia].[dbo].t_word w
+    ON r.city = w.CityName
+    JOIN [DrivingSchool16].[dbo].[Student] st
+    ON r.pesel = st.PK_PESEL
+    JOIN [hurtownia].[dbo].t_result tr 
+    ON r.attempt_number = tr.TakeNumber AND tr.IsPassed=IIF(r.score > 91.8, 1, 0)
 GO
 
+DROP VIEW etlTheoreticalNationalExamTake
 DROP TABLE dbo.ResultTemp
