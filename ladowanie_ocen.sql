@@ -19,7 +19,7 @@ IF (object_id('etlCourseRating') is not null) DROP VIEW etlCourseRating
 GO
 CREATE VIEW etlCourseRating AS
 SELECT 
-    s.ID as [StudentID]
+    s.ID as [StudentID],
     t.course_rating as [Rating]
 FROM 
     dbo.RatingTemp t JOIN [hurtownia].[dbo].t_student s
@@ -42,8 +42,8 @@ IF (object_id('etlLecturerRating') is not null) DROP VIEW etlLecturerRating
 GO
 CREATE VIEW etlLecturerRating AS
 SELECT
-    s.ID AS [StudentID]
-    p.LecturerID AS [EmployeeID]
+    s.ID AS [StudentID],
+    p.LecturerID AS [EmployeeID],
     t.lecturer_rating AS [Rating]
 FROM
     dbo.RatingTemp t JOIN [hurtownia].[dbo].t_student s
@@ -57,8 +57,8 @@ IF (object_id('etlInstructorRating') is not null) DROP VIEW etlInstructorRating
 GO
 CREATE VIEW etlInstructorRating AS
 SELECT
-    s.ID AS [StudentID]
-    p.LecturerID AS [EmployeeID]
+    s.ID AS [StudentID],
+    p.LecturerID AS [EmployeeID],
     t.instructor_rating AS [Rating]
 FROM
     dbo.RatingTemp t JOIN [hurtownia].[dbo].t_student s
