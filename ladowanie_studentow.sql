@@ -8,7 +8,7 @@ SELECT
     CAST(p.Name + ' ' + p.Surname AS varchar(100)) AS StudentName,
     CASE
         WHEN p.Gender = 'Female' THEN 'Kobieta'
-        WHEN p.Gender = 'Male' THEN 'Mężczyzna'
+        WHEN p.Gender = 'Male' THEN 'Mezczyzna'
         ELSE 'Inna'
     END AS Gender
 FROM 

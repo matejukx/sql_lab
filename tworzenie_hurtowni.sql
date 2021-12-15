@@ -53,19 +53,19 @@ CREATE table t_employee(
     IsCurrent int NOT NULL,
     CONSTRAINT CHK_EMPLOYEE CHECK (
         (
-            Gender='Mężczyzna' OR 
+            Gender='Mezczyzna' OR 
             Gender='Kobieta' OR 
             Gender='Inna'
         )
         AND
         (
-            EmployeeRole='Wykładowca' OR 
+            EmployeeRole='Wykladowca' OR 
             EmployeeRole='Instruktor'
         )
         AND
         (
             Wage='niska' OR 
-            Wage='przeciętna' OR 
+            Wage='przecietna' OR 
             Wage='wysoka'
         )
         AND
@@ -87,7 +87,7 @@ CREATE table t_student(
 
     CONSTRAINT CHK_STUDENT CHECK (
         (
-            Gender='Mężczyzna' OR 
+            Gender='Mezczyzna' OR 
             Gender='Kobieta' OR 
             Gender='Inna'
         )
