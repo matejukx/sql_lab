@@ -1,11 +1,11 @@
-﻿IF (object_id('etlCourseParticipationDrivesDone') is not null) DROP VIEW etlCourseParticipationDrivesDone
+IF (object_id('etlCourseParticipationDrivesDone') is not null) DROP VIEW etlCourseParticipationDrivesDone
 GO
 
 CREATE VIEW etlCourseParticipationDrivesDone AS
 SELECT
 	id_pesel_meetingId.ID AS [StudentID],
-	COUNT(m.PK_Id) AS [DrivesDone],
-	IIF(COUNT(m.PK_Id) - 30 > 0, COUNT(m.PK_Id) - 30, 0) AS [AdditionalDrivesDone]
+	COUNT(m.PK_Id) * 4 AS [DrivesDone],
+	IIF(COUNT(m.PK_Id) * 4 - 30 > 0, COUNT(m.PK_Id) * 4 - 30, 0) AS [AdditionalDrivesDone]
 FROM
 	(
 		SELECT ID, PESEL, FK_Meeting_Id FROM 
@@ -32,7 +32,7 @@ FROM
 		SELECT PK_Id, [Type], Begin_date, End_date
 		FROM [DrivingSchool16].[dbo].Meeting
 	) m
-	ON id_pesel_meetingId.FK_Meeting_Id = m.PK_Id AND [Type] = 'Lecture' /* 'Practice' */
+	ON id_pesel_meetingId.FK_Meeting_Id = m.PK_Id AND [Type] = 'Practice' /* 'Practice' */
 	GROUP BY id_pesel_meetingId.ID
 GO
 
@@ -77,7 +77,7 @@ FROM
 	ON student.PESEL = pe.FK_Student_PESEL AND pe.[Type] = 'ExamType.PRACTICE'
 GO
 
-IF (object_id('etlParticipation') is not null) DROP VIEW etlCourseParticipation
+IF (object_id('etlCourseParticipation') is not null) DROP VIEW etlCourseParticipation
 GO
 
 CREATE VIEW etlCourseParticipation AS
@@ -95,11 +95,17 @@ FROM
 	ON ed.DateYear = DATEPART(year, s.End_date) AND ed.DateMonth = DATEPART(month, s.End_date) AND ed.DateDay = DATEPART(day, s.End_date)
 GO
 
-SELECT * FROM etlCourseParticipationDrivesDone ORDER BY StudentID
-SELECT * FROM etlCourseParticipationExamTakes ORDER BY StudentID
-SELECT * FROM etlCourseParticipation ORDER BY StudentID
-
-SELECT * FROM
+SELECT
+	p.StudentID,
+	p.StartDateID,
+	p.EndDateID,
+	e.InternalTheoreticalExamTakes,
+	e.InternalPracticalExamTakes,
+	e.TheoreticalCourseTime,
+	e.PracticalCourseTime,
+	d.DrivesDone,
+	d.AdditionalDrivesDone
+FROM
 (
 	etlCourseParticipation p
 	JOIN
