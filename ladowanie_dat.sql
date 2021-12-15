@@ -28,9 +28,9 @@ While @DateInProcess <= @EndDate
 				WHEN DATEPART(month, @DateInProcess) IN (6) AND DATEPART(day, @DateInProcess)>=21 THEN 'lato'
 				WHEN DATEPART(month, @DateInProcess) IN (7, 8) THEN 'lato'
 				WHEN DATEPART(month, @DateInProcess) IN (9) AND DATEPART(day, @DateInProcess)<23 THEN 'lato'
-				WHEN DATEPART(month, @DateInProcess) IN (9) AND DATEPART(day, @DateInProcess)>=21 THEN 'jesień'
-				WHEN DATEPART(month, @DateInProcess) IN (10, 11) THEN 'jesień'
-				WHEN DATEPART(month, @DateInProcess) IN (12) AND DATEPART(day, @DateInProcess)<21 THEN 'jesień'
+				WHEN DATEPART(month, @DateInProcess) IN (9) AND DATEPART(day, @DateInProcess)>=21 THEN 'jesien'
+				WHEN DATEPART(month, @DateInProcess) IN (10, 11) THEN 'jesien'
+				WHEN DATEPART(month, @DateInProcess) IN (12) AND DATEPART(day, @DateInProcess)<21 THEN 'jesien'
 				WHEN DATEPART(month, @DateInProcess) IN (12) AND DATEPART(day, @DateInProcess)>=21 THEN 'zima'
 				WHEN DATEPART(month, @DateInProcess) IN (3) AND DATEPART(day, @DateInProcess)<20 THEN 'zima'
 				ELSE 'zima'
@@ -48,7 +48,7 @@ While @DateInProcess <= @EndDate
 		-- Add a day and loop again
 		Set @DateInProcess = DateAdd(d, 1, @DateInProcess);
 	End
-
+GO
 	-- Step e:  Use a while loop to add month-year dates to the table
 Set @DateInProcess = @StartDate;
 
@@ -62,9 +62,9 @@ While @DateInProcess <= @EndDate
 				WHEN DATEPART(month, @DateInProcess) IN (6) AND DATEPART(day, @DateInProcess)>=21 THEN 'lato'
 				WHEN DATEPART(month, @DateInProcess) IN (7, 8) THEN 'lato'
 				WHEN DATEPART(month, @DateInProcess) IN (9) AND DATEPART(day, @DateInProcess)<23 THEN 'lato'
-				WHEN DATEPART(month, @DateInProcess) IN (9) AND DATEPART(day, @DateInProcess)>=21 THEN 'jesień'
-				WHEN DATEPART(month, @DateInProcess) IN (10, 11) THEN 'jesień'
-				WHEN DATEPART(month, @DateInProcess) IN (12) AND DATEPART(day, @DateInProcess)<21 THEN 'jesień'
+				WHEN DATEPART(month, @DateInProcess) IN (9) AND DATEPART(day, @DateInProcess)>=21 THEN 'jesien'
+				WHEN DATEPART(month, @DateInProcess) IN (10, 11) THEN 'jesien'
+				WHEN DATEPART(month, @DateInProcess) IN (12) AND DATEPART(day, @DateInProcess)<21 THEN 'jesien'
 				WHEN DATEPART(month, @DateInProcess) IN (12) AND DATEPART(day, @DateInProcess)>=21 THEN 'zima'
 				WHEN DATEPART(month, @DateInProcess) IN (3) AND DATEPART(day, @DateInProcess)<20 THEN 'zima'
 				ELSE 'zima'
