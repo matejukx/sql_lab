@@ -37,8 +37,8 @@ SELECT
     CAST(NULL AS varchar(100)) AS EmployeeName,
     CAST(NULL AS varchar(9)) AS Gender,
     d.ID as EmploymentDateID,
-    CAST(NULL AS varchar(10)) AS EmployeeRole,
-    CAST(NULL AS varchar(10)) AS Wage
+    'Instruktor' AS EmployeeRole,
+    'przecietna' AS Wage
 FROM [hurtownia].[dbo].t_date d
 WHERE d.DateYear IS NULL AND d.DateMonth IS NULL AND d.DateDay IS NULL
 GO

@@ -84,14 +84,19 @@ CREATE VIEW etlCourseParticipation AS
 SELECT
 	ts.ID AS [StudentID],
 	sd.ID AS [StartDateID],
-	ed.ID AS [EndDateID]
+	IIF(
+        ed.ID IS NULL, (
+        SELECT TOP 1 ID 
+        FROM [hurtownia].[dbo].t_date 
+        WHERE DateYear IS NULL AND DateMonth IS NULL AND DateDay IS NULL),
+        ed.ID) AS [EndDateID]
 FROM
     [DrivingSchool16].[dbo].Student s
     JOIN [hurtownia].[dbo].t_student ts
 	ON s.PK_PESEL = ts.PESEL
 	JOIN [hurtownia].[dbo].t_date sd
 	ON sd.DateYear = DATEPART(year, s.Begin_date) AND sd.DateMonth = DATEPART(month, s.Begin_date) AND sd.DateDay = DATEPART(day, s.Begin_date)
-		JOIN [hurtownia].[dbo].t_date ed
+	LEFT JOIN [hurtownia].[dbo].t_date ed
 	ON ed.DateYear = DATEPART(year, s.End_date) AND ed.DateMonth = DATEPART(month, s.End_date) AND ed.DateDay = DATEPART(day, s.End_date)
 GO
 
