@@ -164,15 +164,13 @@ GO
 CREATE table t_exam_result(
     ID int IDENTITY(1,1) PRIMARY KEY,
     IsPassed int NOT NULL,
-    TakeNumber int NOT NULL,
+    TakeNumber varchar(11) NOT NULL,
 
     CONSTRAINT CHK_EXAM_RESULT CHECK (
 		(
 			IsPassed=1 OR
 			IsPassed=0
 		)
-		AND
-        TakeNumber>=1
     )
 )
 GO

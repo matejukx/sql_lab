@@ -1,6 +1,6 @@
 ﻿USE [hurtownia]
 GO
-DELETE FROM t_word
+
 INSERT INTO t_word(Province, Word_Name, CityName) VALUES
 ('dolnoslaskie','WORD Jelenia Gora','Glogow'),
 ('dolnoslaskie','WORD Jelenia Gora','Kamienna Gora'),
