@@ -1,91 +1,11 @@
-IF (object_id('nullEmployee') is not null) DROP VIEW nullEmployee
-GO
-
-CREATE VIEW nullEmployee AS
-SELECT * 
-FROM [hurtownia].[dbo].t_employee 
-WHERE PESEL IS NULL AND EmployeeName IS NULL
-GO
-
-IF (object_id('etlInstructor') is not null) DROP VIEW etlInstructor
-GO
-
-CREATE VIEW etlInstructor AS
-SELECT
-	id_pesel_meetingId.ID AS [StudentID],
-	IIF(e.ID IS NULL, (SELECT TOP 1 ID FROM nullEmployee) ,e.ID) AS [InstructorID]
-FROM
-	(
-		SELECT ID, PESEL, FK_Meeting_Id FROM 
-		(
-			SELECT PK_PESEL
-			FROM [DrivingSchool16].[dbo].Student
-		) s
-		JOIN 
-		(
-			SELECT ID, PESEL
-			FROM [hurtownia].[dbo].t_student 
-		) ts
-		ON s.PK_PESEL = ts.PESEL
-		JOIN 
-		(
-			SELECT *
-			FROM [DrivingSchool16].[dbo].Participation
-		) p
-		ON s.PK_PESEL = p.FK_Student_PESEL
-		GROUP BY ts.ID, ts.PESEL, p.FK_Meeting_Id
-	) id_pesel_meetingId
-	JOIN
-		[DrivingSchool16].[dbo].Meeting m
-	ON id_pesel_meetingId.FK_Meeting_Id = m.PK_Id AND m.[Type] = 'Practice'
-	LEFT JOIN [hurtownia].[dbo].t_employee e
-	ON e.PESEL = m.[FK_Employee_PESEL]
-	GROUP BY id_pesel_meetingId.ID , e.ID
-GO
-
-IF (object_id('etlLecturer') is not null) DROP VIEW etlLecturer
-GO
-
-CREATE VIEW etlLecturer AS
-SELECT
-	id_pesel_meetingId.ID AS [StudentID],
-	IIF(e.ID IS NULL, (SELECT TOP 1 ID FROM nullEmployee) ,e.ID) AS [LecturerID]
-FROM
-	(
-		SELECT ID, PESEL, FK_Meeting_Id FROM 
-		(
-			SELECT PK_PESEL
-			FROM [DrivingSchool16].[dbo].Student
-		) s
-		JOIN 
-		(
-			SELECT ID, PESEL
-			FROM [hurtownia].[dbo].t_student 
-		) ts
-		ON s.PK_PESEL = ts.PESEL
-		JOIN 
-		(
-			SELECT *
-			FROM [DrivingSchool16].[dbo].Participation
-		) p
-		ON s.PK_PESEL = p.FK_Student_PESEL
-		GROUP BY ts.ID, ts.PESEL, p.FK_Meeting_Id
-	) id_pesel_meetingId
-	JOIN
-		[DrivingSchool16].[dbo].Meeting mt
-	ON id_pesel_meetingId.FK_Meeting_Id = mt.PK_Id AND mt.[Type] = 'Lecture'
-	LEFT JOIN [hurtownia].[dbo].t_employee e
-	ON e.PESEL = mt.[FK_Employee_PESEL]
-	GROUP BY id_pesel_meetingId.ID , e.ID
-GO
-
 IF (object_id('etlCourseParticipationDrivesDone') is not null) DROP VIEW etlCourseParticipationDrivesDone
 GO
 
 CREATE VIEW etlCourseParticipationDrivesDone AS
 SELECT
 	id_pesel_meetingId.ID AS [StudentID],
-	COUNT(m.PK_Id) * 4 AS [DrivesDone]
+	COUNT(m.PK_Id) * 4 AS [DrivesDone],
+	IIF(COUNT(m.PK_Id) * 4 - 30 > 0, COUNT(m.PK_Id) * 4 - 30, 0) AS [AdditionalDrivesDone]
 FROM
 	(
 		SELECT ID, PESEL, FK_Meeting_Id FROM 
@@ -109,10 +29,9 @@ FROM
 	) id_pesel_meetingId
 	JOIN
 	(
-		SELECT PK_Id, [Type], [FK_Employee_PESEL]
+		SELECT PK_Id, [Type], Begin_date, End_date
 		FROM [DrivingSchool16].[dbo].Meeting
 	) m
-
 	ON id_pesel_meetingId.FK_Meeting_Id = m.PK_Id AND [Type] = 'Practice' /* 'Practice' */
 	GROUP BY id_pesel_meetingId.ID
 GO
@@ -142,14 +61,14 @@ FROM
 		ON s.PK_PESEL = ts.PESEL
 		GROUP BY ts.ID, ts.PESEL, Begin_date, End_date
 	) student
-	LEFT JOIN
+	JOIN
 	(
-		SELECT FK_Student_PESEL, [Type], [Date], MAX(Attempt_number)  AS [InternalTheoreticalExamTakes]
+		SELECT FK_Student_PESEL, [Type], [Date], MAX(Attempt_number) AS [InternalTheoreticalExamTakes]
 		FROM [DrivingSchool16].[dbo].Exam
 		GROUP BY FK_Student_PESEL, [Type], [Date]
 	) te
 	ON student.PESEL = te.FK_Student_PESEL AND te.[Type] = 'ExamType.THEORY'
-	LEFT JOIN
+	JOIN
 	(
 		SELECT FK_Student_PESEL, [Type], [Date], MAX(Attempt_number) AS [InternalPracticalExamTakes]
 		FROM [DrivingSchool16].[dbo].Exam
@@ -181,20 +100,16 @@ FROM
 	ON ed.DateYear = DATEPART(year, s.End_date) AND ed.DateMonth = DATEPART(month, s.End_date) AND ed.DateDay = DATEPART(day, s.End_date)
 GO
 
-IF (object_id('etlFinalParticipation') is not null) DROP VIEW etlFinalParticipation
-GO
-CREATE VIEW etlFinalParticipation AS
 SELECT
 	p.StudentID,
 	p.StartDateID,
 	p.EndDateID,
-	i.InstructorID,
-	l.LecturerID,
 	e.InternalTheoreticalExamTakes,
 	e.InternalPracticalExamTakes,
 	e.TheoreticalCourseTime,
 	e.PracticalCourseTime,
-	d.DrivesDone
+	d.DrivesDone,
+	d.AdditionalDrivesDone
 FROM
 (
 	etlCourseParticipation p
@@ -204,108 +119,8 @@ FROM
 	JOIN
 	etlCourseParticipationDrivesDone d
 	ON p.StudentID = d.StudentID
-	JOIN 
-	etlInstructor i 
-	ON p.StudentID = i.StudentID
-	JOIN 
-	etlLecturer l
-	ON p.StudentID = l.StudentID
-
-)
-GO
-
-MERGE [hurtownia].[dbo].t_course_participation AS T
-USING etlFinalParticipation AS S 
-ON T.StudentID = S.StudentID
- 	AND T.StartDateID = S.StartDateID
-	AND T.EndDateID = S.EndDateID
-	AND T.InstructorID = S.InstructorID
-	AND T.LecturerID = S.LecturerID
-WHEN NOT MATCHED BY TARGET
-    THEN 
-    INSERT (
-		StudentID,
-		StartDateID,
-		EndDateID,
-		InstructorID,
-		LecturerID,
-		InternalTheoreticalExamTakes,
-		InternalPracticalExamTakes,
-		TheoreticalCourseTime,
-		PracticalCourseTime,
-		DrivesDone)
-    VALUES (
-		S.StudentID,
-		S.StartDateID,
-		S.EndDateID,
-		S.InstructorID,
-		S.LecturerID,
-		S.InternalTheoreticalExamTakes,
-		S.InternalPracticalExamTakes,
-		S.TheoreticalCourseTime,
-		S.PracticalCourseTime,
-		S.DrivesDone)
-WHEN MATCHED 
-	AND (
-		T.InstructorID <> S.InstructorID
-		OR T.InternalTheoreticalExamTakes <> S.InternalTheoreticalExamTakes
-		OR T.InternalPracticalExamTakes <> S.InternalPracticalExamTakes
-		OR T.TheoreticalCourseTime <> S.TheoreticalCourseTime
-		OR T.PracticalCourseTime <> S.PracticalCourseTime
-		OR T.DrivesDone <> S.DrivesDone
-	)
-    THEN
-        UPDATE
-        SET 
-			T.InstructorID = S.InstructorID,
-			T.InternalTheoreticalExamTakes = S.InternalTheoreticalExamTakes,
-			T.InternalPracticalExamTakes = S.InternalPracticalExamTakes,
-			T.TheoreticalCourseTime = S.TheoreticalCourseTime,
-			T.PracticalCourseTime = S.PracticalCourseTime,
-			T.DrivesDone = S.DrivesDone
-;
-INSERT INTO [hurtownia].[dbo].t_course_participation(
-	StudentID,
-	StartDateID,
-	EndDateID,
-	InstructorID,
-	LecturerID,
-	InternalTheoreticalExamTakes,
-	InternalPracticalExamTakes,
-	TheoreticalCourseTime,
-	PracticalCourseTime,
-	DrivesDone)
-SELECT
-	StudentID,
-	StartDateID,
-	EndDateID,
-	InstructorID,
-	LecturerID,
-	InternalTheoreticalExamTakes,
-	InternalPracticalExamTakes,
-	TheoreticalCourseTime,
-	PracticalCourseTime,
-	DrivesDone
-FROM
-etlFinalParticipation
-EXCEPT
-SELECT
-	StudentID,
-	StartDateID,
-	EndDateID,
-	InstructorID,
-	LecturerID,
-	InternalTheoreticalExamTakes,
-	InternalPracticalExamTakes,
-	TheoreticalCourseTime,
-	PracticalCourseTime,
-	DrivesDone
-FROM [hurtownia].[dbo].t_course_participation
+) ORDER BY p.StudentID
 
 DROP VIEW etlCourseParticipationExamTakes
 DROP VIEW etlCourseParticipationDrivesDone
 DROP VIEW etlCourseParticipation
-DROP VIEW etlFinalParticipation
-DROP VIEW etlInstructor
-DROP VIEW etlLecturer
-DROP VIEW nullEmployee

@@ -10,13 +10,19 @@ While @Proba <= 300
 	--Add a row into the date dimension table for this date
 		INSERT INTO [hurtownia].[dbo].t_exam_result(IsPassed, TakeNumber)
 		Values ( 
-		  0, CONCAT('Proba ',CAST(@Proba AS VARCHAR))
+		  0, CAST(@Proba AS varchar(3)) + '. proba'
 		);  
         INSERT INTO [hurtownia].[dbo].t_exam_result(IsPassed, TakeNumber)
 		Values ( 
-		  1, CONCAT('Proba ',CAST(@Proba AS VARCHAR))
+		  1, CAST(@Proba AS varchar(3)) + '. proba'
 		);  
 		-- Add a day and loop again
 		Set @Proba = @Proba + 1;
 	End
-go
+
+INSERT INTO [hurtownia].[dbo].t_exam_result(IsPassed, TakeNumber)
+		Values ( 
+		  0, '300+. proba'
+		); 
+
+Go

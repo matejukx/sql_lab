@@ -5,7 +5,7 @@ If (object_id('dbo.RatingTemp') is not null) DROP TABLE dbo.RatingTemp;
 CREATE TABLE dbo.RatingTemp(pesel varchar(11), lecturer_rating int, instructor_rating int, course_rating int)
 GO 
 BULK INSERT dbo.RatingTemp
-    FROM 'C:\Users\mmatejuk\Downloads\essa\essa\AssesmentForms.csv'
+    FROM 'C:\Users\Kuba\Downloads\essa\essa\AssesmentForms.csv'
     WITH
     (
     FIRSTROW = 2,

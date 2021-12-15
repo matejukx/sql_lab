@@ -44,12 +44,12 @@ GO
 
 CREATE table t_employee(
     ID int IDENTITY(1,1) PRIMARY KEY,
-    PESEL varchar(11) ,
-    EmployeeName varchar(100) ,
-    Gender varchar(9) ,
-    EmploymentDateID int  FOREIGN KEY REFERENCES t_date(ID),
-    EmployeeRole varchar(10) ,
-    Wage varchar(10) ,
+    PESEL varchar(11) NOT NULL,
+    EmployeeName varchar(100) NOT NULL,
+    Gender varchar(9) NOT NULL,
+    EmploymentDateID int NOT NULL FOREIGN KEY REFERENCES t_date(ID),
+    EmployeeRole varchar(10) NOT NULL,
+    Wage varchar(10) NOT NULL,
     IsCurrent int NOT NULL,
     CONSTRAINT CHK_EMPLOYEE CHECK (
         (
@@ -164,7 +164,7 @@ GO
 CREATE table t_exam_result(
     ID int IDENTITY(1,1) PRIMARY KEY,
     IsPassed int NOT NULL,
-    TakeNumber VARCHAR(9) NOT NULL,
+    TakeNumber varchar(11) NOT NULL,
 
     CONSTRAINT CHK_EXAM_RESULT CHECK (
 		(
