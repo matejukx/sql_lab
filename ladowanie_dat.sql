@@ -48,7 +48,7 @@ While @DateInProcess <= @EndDate
 		-- Add a day and loop again
 		Set @DateInProcess = DateAdd(d, 1, @DateInProcess);
 	End
-GO
+
 	-- Step e:  Use a while loop to add month-year dates to the table
 Set @DateInProcess = @StartDate;
 
