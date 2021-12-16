@@ -24,7 +24,8 @@ FROM
 		JOIN 
 		(
 			SELECT ID, PESEL
-			FROM [hurtownia].[dbo].t_student 
+			FROM [hurtownia].[dbo].t_student
+			WHERE IsCurrent = 1 
 		) ts
 		ON s.PK_PESEL = ts.PESEL
 		JOIN 
@@ -39,7 +40,7 @@ FROM
 		[DrivingSchool16].[dbo].Meeting m
 	ON id_pesel_meetingId.FK_Meeting_Id = m.PK_Id AND m.[Type] = 'Practice'
 	LEFT JOIN [hurtownia].[dbo].t_employee e
-	ON e.PESEL = m.[FK_Employee_PESEL]
+	ON e.PESEL = m.[FK_Employee_PESEL] AND e.IsCurrent = 1
 	GROUP BY id_pesel_meetingId.ID , e.ID
 GO
 
@@ -61,6 +62,7 @@ FROM
 		(
 			SELECT ID, PESEL
 			FROM [hurtownia].[dbo].t_student 
+			WHERE IsCurrent = 1 
 		) ts
 		ON s.PK_PESEL = ts.PESEL
 		JOIN 
@@ -75,7 +77,7 @@ FROM
 		[DrivingSchool16].[dbo].Meeting mt
 	ON id_pesel_meetingId.FK_Meeting_Id = mt.PK_Id AND mt.[Type] = 'Lecture'
 	LEFT JOIN [hurtownia].[dbo].t_employee e
-	ON e.PESEL = mt.[FK_Employee_PESEL]
+	ON e.PESEL = mt.[FK_Employee_PESEL] AND e.IsCurrent = 1
 	GROUP BY id_pesel_meetingId.ID , e.ID
 GO
 
@@ -97,6 +99,7 @@ FROM
 		(
 			SELECT ID, PESEL
 			FROM [hurtownia].[dbo].t_student 
+			WHERE IsCurrent = 1 
 		) ts
 		ON s.PK_PESEL = ts.PESEL
 		JOIN 
@@ -138,6 +141,7 @@ FROM
 		(
 			SELECT ID, PESEL
 			FROM [hurtownia].[dbo].t_student 
+			WHERE IsCurrent = 1 
 		) ts
 		ON s.PK_PESEL = ts.PESEL
 		GROUP BY ts.ID, ts.PESEL, Begin_date, End_date
@@ -174,7 +178,7 @@ SELECT
 FROM
     [DrivingSchool16].[dbo].Student s
     JOIN [hurtownia].[dbo].t_student ts
-	ON s.PK_PESEL = ts.PESEL
+	ON s.PK_PESEL = ts.PESEL AND ts.IsCurrent=1
 	JOIN [hurtownia].[dbo].t_date sd
 	ON sd.DateYear = DATEPART(year, s.Begin_date) AND sd.DateMonth = DATEPART(month, s.Begin_date) AND sd.DateDay = DATEPART(day, s.Begin_date)
 	LEFT JOIN [hurtownia].[dbo].t_date ed
@@ -219,8 +223,6 @@ USING etlFinalParticipation AS S
 ON T.StudentID = S.StudentID
  	AND T.StartDateID = S.StartDateID
 	AND T.EndDateID = S.EndDateID
-	AND T.InstructorID = S.InstructorID
-	AND T.LecturerID = S.LecturerID
 WHEN NOT MATCHED BY TARGET
     THEN 
     INSERT (
@@ -248,6 +250,7 @@ WHEN NOT MATCHED BY TARGET
 WHEN MATCHED 
 	AND (
 		T.InstructorID <> S.InstructorID
+		OR T.LecturerID <> S.LecturerID
 		OR T.InternalTheoreticalExamTakes <> S.InternalTheoreticalExamTakes
 		OR T.InternalPracticalExamTakes <> S.InternalPracticalExamTakes
 		OR T.TheoreticalCourseTime <> S.TheoreticalCourseTime
@@ -258,6 +261,7 @@ WHEN MATCHED
         UPDATE
         SET 
 			T.InstructorID = S.InstructorID,
+			T.LecturerID = S.LecturerID,
 			T.InternalTheoreticalExamTakes = S.InternalTheoreticalExamTakes,
 			T.InternalPracticalExamTakes = S.InternalPracticalExamTakes,
 			T.TheoreticalCourseTime = S.TheoreticalCourseTime,

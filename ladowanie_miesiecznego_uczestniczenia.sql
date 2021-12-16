@@ -26,6 +26,7 @@ FROM
 		(
 			SELECT ID, PESEL
 			FROM [hurtownia].[dbo].t_student 
+			WHERE IsCurrent = 1 
 		) ts
 		ON s.PK_PESEL = ts.PESEL
 		JOIN 
@@ -61,6 +62,7 @@ FROM
 		(
 			SELECT ID, PESEL
 			FROM [hurtownia].[dbo].t_student 
+			WHERE IsCurrent = 1 
 		) ts
 		ON s.PK_PESEL = ts.PESEL
 		JOIN 
@@ -75,7 +77,7 @@ FROM
 		[DrivingSchool16].[dbo].Meeting m
 	ON id_pesel_meetingId.FK_Meeting_Id = m.PK_Id AND m.[Type] = 'Practice'
 	LEFT JOIN [hurtownia].[dbo].t_employee e
-	ON e.PESEL = m.[FK_Employee_PESEL]
+	ON e.PESEL = m.[FK_Employee_PESEL] AND e.IsCurrent = 1
 	GROUP BY id_pesel_meetingId.ID , e.ID
 GO
 
@@ -97,6 +99,7 @@ FROM
 		(
 			SELECT ID, PESEL
 			FROM [hurtownia].[dbo].t_student 
+			WHERE IsCurrent = 1 
 		) ts
 		ON s.PK_PESEL = ts.PESEL
 		JOIN 
@@ -111,7 +114,7 @@ FROM
 		[DrivingSchool16].[dbo].Meeting mt
 	ON id_pesel_meetingId.FK_Meeting_Id = mt.PK_Id AND mt.[Type] = 'Lecture'
 	LEFT JOIN [hurtownia].[dbo].t_employee e
-	ON e.PESEL = mt.[FK_Employee_PESEL]
+	ON e.PESEL = mt.[FK_Employee_PESEL] AND e.IsCurrent = 1
 	GROUP BY id_pesel_meetingId.ID , e.ID
 GO
 
@@ -135,8 +138,6 @@ MERGE [hurtownia].[dbo].t_course_monthly_participation AS T
 USING etlMonthly AS S 
 ON T.StudentID = S.StudentID
  	AND T.MonthID = S.MonthID
-	AND T.InstructorID = S.InstructorID
-	AND T.LecturerID = S.LecturerID
 WHEN NOT MATCHED BY TARGET
     THEN 
     INSERT (
@@ -154,12 +155,14 @@ WHEN NOT MATCHED BY TARGET
 WHEN MATCHED 
 	AND (
 		T.InstructorID <> S.InstructorID
+		OR T.LecturerID <> S.LecturerID
 		OR T.DrivesDone <> S.DrivesDone
 	)
     THEN
         UPDATE
         SET 
 			T.InstructorID = S.InstructorID,
+			T.LecturerID = S.LecturerID,
 			T.DrivesDone = S.DrivesDone
 ;
 INSERT INTO [hurtownia].[dbo].t_course_monthly_participation(

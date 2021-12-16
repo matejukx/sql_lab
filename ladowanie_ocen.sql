@@ -5,7 +5,7 @@ If (object_id('dbo.RatingTemp') is not null) DROP TABLE dbo.RatingTemp;
 CREATE TABLE dbo.RatingTemp(pesel varchar(11), lecturer_rating int, instructor_rating int, course_rating int)
 GO 
 BULK INSERT dbo.RatingTemp
-    FROM 'C:\Users\mmatejuk\Downloads\essa\essa\AssesmentForms.csv'
+    FROM 'C:\Users\mmatejuk\Downloads\essa\essa\AssesmentForms2.csv'
     WITH
     (
     FIRSTROW = 2,
@@ -23,7 +23,7 @@ SELECT
     t.course_rating as [Rating]
 FROM 
     dbo.RatingTemp t JOIN [hurtownia].[dbo].t_student s
-    ON t.pesel = s.PESEL AND s.isCurrent = 1
+    ON t.pesel = s.PESEL AND s.IsCurrent = 1
 GO
 
 INSERT INTO [hurtownia].[dbo].t_course_rating(StudentID, Rating)
@@ -47,7 +47,7 @@ SELECT
     t.lecturer_rating AS [Rating]
 FROM
     dbo.RatingTemp t JOIN [hurtownia].[dbo].t_student s
-    ON t.pesel = s.PESEL AND s.isCurrent = 1
+    ON t.pesel = s.PESEL AND s.IsCurrent = 1
     JOIN
     [hurtownia].[dbo].t_course_participation p
     ON s.ID = p.StudentID
@@ -62,7 +62,7 @@ SELECT
     t.instructor_rating AS [Rating]
 FROM
     dbo.RatingTemp t JOIN [hurtownia].[dbo].t_student s
-    ON t.pesel = s.PESEL AND s.isCurrent = 1
+    ON t.pesel = s.PESEL AND s.IsCurrent = 1
     JOIN
     [hurtownia].[dbo].t_course_participation p
     ON s.ID = p.StudentID

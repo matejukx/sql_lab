@@ -5,7 +5,7 @@ If (object_id('dbo.ResultTemp') is not null) DROP TABLE dbo.ResultTemp;
 CREATE TABLE dbo.ResultTemp(pesel varchar(11), exam_type varchar(8), isPassed varchar(10), attempt_number int, exam_date date, city varchar(85))
 GO 
 BULK INSERT dbo.ResultTemp
-    FROM 'C:\Users\mmatejuk\Downloads\essa\essa\PRACTICEExamForms.csv'
+    FROM 'C:\Users\mmatejuk\Downloads\essa\essa\PRACTICEExamForms2.csv'
     WITH
     (
     FIRSTROW = 2,
@@ -26,7 +26,7 @@ SELECT
 FROM
     dbo.ResultTemp r 
 	JOIN [hurtownia].[dbo].t_student s
-    ON r.pesel = s.PESEL
+    ON r.pesel = s.PESEL AND s.IsCurrent=1
 	JOIN [hurtownia].[dbo].t_course_participation p
     ON p.ID = s.ID
     JOIN [hurtownia].[dbo].t_date d
