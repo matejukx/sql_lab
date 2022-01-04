@@ -1,11 +1,11 @@
 USE hurtownia
 GO
 
-If (object_id('dbo.ResultTemp') is not null) DROP TABLE dbo.ResultTemp;
-CREATE TABLE dbo.ResultTemp(pesel varchar(11), exam_type varchar(8), isPassed varchar(10), attempt_number int, exam_date date, city varchar(85))
+If (object_id('dbo.ResultTempPractice') is not null) DROP TABLE dbo.ResultTempPractice;
+CREATE TABLE dbo.ResultTempPractice(pesel varchar(11), exam_type varchar(8), isPassed varchar(10), attempt_number int, exam_date date, city varchar(85))
 GO 
-BULK INSERT dbo.ResultTemp
-    FROM 'C:\Users\mmatejuk\Downloads\essa\essa\PRACTICEExamForms2.csv'
+BULK INSERT dbo.ResultTempPractice
+    FROM 'C:\Users\mmatejuk\Downloads\essa\essa\PRACTICEExamForms1.csv'
     WITH
     (
     FIRSTROW = 2,
@@ -13,6 +13,9 @@ BULK INSERT dbo.ResultTemp
     ROWTERMINATOR = '\n',   --Use to shift the control to next row
     TABLOCK
     )
+GO
+
+If (object_id('etlPracticalNationalExamTake') is not null) DROP VIEW etlPracticalNationalExamTake;
 GO
 
 CREATE VIEW etlPracticalNationalExamTake AS
@@ -24,7 +27,7 @@ SELECT
     DATEDIFF(day, st.End_date, r.exam_date) AS [TimeFromCourseEnd],
     tr.ID AS [ExamResultID]
 FROM
-    dbo.ResultTemp r 
+    dbo.ResultTempPractice r 
 	JOIN [hurtownia].[dbo].t_student s
     ON r.pesel = s.PESEL AND s.IsCurrent=1
 	JOIN [hurtownia].[dbo].t_course_participation p
@@ -36,7 +39,7 @@ FROM
     JOIN [DrivingSchool16].[dbo].[Student] st
     ON r.pesel = st.PK_PESEL
 	JOIN [hurtownia].[dbo].t_exam_result tr 
-    ON CONCAT('Proba ',CAST(r.attempt_number AS VARCHAR)) = tr.TakeNumber AND tr.IsPassed=IIF(r.isPassed = 'zdany', 1, 0)
+    ON CONCAT('Proba ',CAST(r.attempt_number AS VARCHAR)) = tr.TakeNumber AND tr.IsPassed=IIF(r.isPassed = 'passed', 1, 0)
 GO
 
 INSERT INTO [hurtownia].[dbo].t_practical_national_exam_take(StudentID, InstructorID, DateID, WordID, TimeFromCourseEnd, ExamResultID)
@@ -52,4 +55,4 @@ FROM
 GO
 
 DROP VIEW etlPracticalNationalExamTake
-DROP TABLE dbo.ResultTemp
+DROP TABLE dbo.ResultTempPractice

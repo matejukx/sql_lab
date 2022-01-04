@@ -1,16 +1,16 @@
-IF (object_id('nullEmployee') is not null) DROP VIEW nullEmployee
+IF (object_id('nullEmployee2') is not null) DROP VIEW nullEmployee2
 GO
 
-CREATE VIEW nullEmployee AS
+CREATE VIEW nullEmployee2 AS
 SELECT * 
 FROM [hurtownia].[dbo].t_employee 
 WHERE PESEL IS NULL AND EmployeeName IS NULL
 GO
 
-IF (object_id('etlCourseParticipationDrivesDone') is not null) DROP VIEW etlCourseParticipationDrivesDone
+IF (object_id('etlCourseParticipationDrivesDone2') is not null) DROP VIEW etlCourseParticipationDrivesDone2
 GO
 
-CREATE VIEW etlCourseParticipationDrivesDone AS
+CREATE VIEW etlCourseParticipationDrivesDone2 AS
 SELECT
 	id_pesel_meetingId.ID AS [StudentID],
 	COUNT(m.PK_Id) * 4 AS [DrivesDone],
@@ -44,13 +44,13 @@ FROM
 	GROUP BY id_pesel_meetingId.ID, d.ID
 GO
 
-IF (object_id('etlInstructor') is not null) DROP VIEW etlInstructor
+IF (object_id('etlInstructor2') is not null) DROP VIEW etlInstructor2
 GO
 
-CREATE VIEW etlInstructor AS
+CREATE VIEW etlInstructor2 AS
 SELECT
 	id_pesel_meetingId.ID AS [StudentID],
-	IIF(e.ID IS NULL, (SELECT TOP 1 ID FROM nullEmployee) ,e.ID) AS [InstructorID]
+	IIF(e.ID IS NULL, (SELECT TOP 1 ID FROM nullEmployee2) ,e.ID) AS [InstructorID]
 FROM
 	(
 		SELECT ID, PESEL, FK_Meeting_Id FROM 
@@ -81,13 +81,13 @@ FROM
 	GROUP BY id_pesel_meetingId.ID , e.ID
 GO
 
-IF (object_id('etlLecturer') is not null) DROP VIEW etlLecturer
+IF (object_id('etlLecturer2') is not null) DROP VIEW etlLecturer2
 GO
 
-CREATE VIEW etlLecturer AS
+CREATE VIEW etlLecturer2 AS
 SELECT
 	id_pesel_meetingId.ID AS [StudentID],
-	IIF(e.ID IS NULL, (SELECT TOP 1 ID FROM nullEmployee) ,e.ID) AS [LecturerID]
+	IIF(e.ID IS NULL, (SELECT TOP 1 ID FROM nullEmployee2) ,e.ID) AS [LecturerID]
 FROM
 	(
 		SELECT ID, PESEL, FK_Meeting_Id FROM 
@@ -129,9 +129,9 @@ SELECT
     LecturerID,
     InstructorID
 FROM 
-    etlCourseParticipationDrivesDone d
-    JOIN etlLecturer l ON d.StudentID = l.StudentID
-    JOIN etlInstructor i ON d.StudentID = i.StudentID
+    etlCourseParticipationDrivesDone2 d
+    JOIN etlLecturer2 l ON d.StudentID = l.StudentID
+    JOIN etlInstructor2 i ON d.StudentID = i.StudentID
 GO
 
 MERGE [hurtownia].[dbo].t_course_monthly_participation AS T
@@ -188,8 +188,8 @@ SELECT
 	DrivesDone
 FROM [hurtownia].[dbo].t_course_monthly_participation
 
-DROP VIEW etlCourseParticipationDrivesDone
-DROP VIEW nullEmployee
-DROP VIEW etlLecturer
-DROP VIEW etlInstructor
+DROP VIEW etlCourseParticipationDrivesDone2
+DROP VIEW nullEmployee2
+DROP VIEW etlLecturer2
+DROP VIEW etlInstructor2
 DROP VIEW etlMonthly

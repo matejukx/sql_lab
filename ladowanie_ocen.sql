@@ -5,7 +5,7 @@ If (object_id('dbo.RatingTemp') is not null) DROP TABLE dbo.RatingTemp;
 CREATE TABLE dbo.RatingTemp(pesel varchar(11), lecturer_rating int, instructor_rating int, course_rating int)
 GO 
 BULK INSERT dbo.RatingTemp
-    FROM 'C:\Users\mmatejuk\Downloads\essa\essa\AssesmentForms2.csv'
+    FROM 'C:\Users\mmatejuk\Downloads\essa\essa\AssesmentForms1.csv'
     WITH
     (
     FIRSTROW = 2,
@@ -58,7 +58,7 @@ GO
 CREATE VIEW etlInstructorRating AS
 SELECT
     s.ID AS [StudentID],
-    p.LecturerID AS [EmployeeID],
+    p.InstructorID AS [EmployeeID],
     t.instructor_rating AS [Rating]
 FROM
     dbo.RatingTemp t JOIN [hurtownia].[dbo].t_student s

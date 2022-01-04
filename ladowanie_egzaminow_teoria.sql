@@ -5,7 +5,7 @@ If (object_id('dbo.ResultTemp') is not null) DROP TABLE dbo.ResultTemp;
 CREATE TABLE dbo.ResultTemp(pesel varchar(11), exam_type varchar(6), score float, attempt_number int, exam_date date, city varchar(85))
 GO 
 BULK INSERT dbo.ResultTemp
-    FROM 'C:\Users\mmatejuk\Downloads\essa\essa\THEORYExamForms2.csv'
+    FROM 'C:\Users\mmatejuk\Downloads\essa\essa\THEORYExamForms1.csv'
     WITH
     (
     FIRSTROW = 2,
